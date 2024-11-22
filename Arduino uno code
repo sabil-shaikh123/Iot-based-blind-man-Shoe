@@ -1,0 +1,51 @@
+// Define pins
+const int trigPin = 9;
+const int echoPin = 8;
+const int buzzerPin = 3;
+
+// Constants
+const int maxDistance = 200; // Maximum distance for detecting objects in cm
+
+void setup() {
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(buzzerPin, OUTPUT);
+  Serial.begin(9600); // For debugging
+}
+
+void loop() {
+  // Measure distance
+  long duration, distance;
+  
+  // Send trigger pulse
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  // Read echo pulse duration
+  duration = pulseIn(echoPin, HIGH);
+  
+  // Calculate distance in cm
+  distance = duration * 0.034 / 2;
+  
+  // If distance is within the max detection range
+  if (distance <= maxDistance) {
+    int volume = map(distance, 0, maxDistance, 255, 0); // Map distance to volume (PWM duty cycle)
+    
+    // Play sound with varying loudness
+    analogWrite(buzzerPin, volume);
+    delay(10); // Small delay for smooth sound change
+  } else {
+    // If no object is detected within range, turn off the buzzer
+    analogWrite(buzzerPin, 0);
+  }
+  
+  // Debug output (optional)
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+  
+  delay(100); // Short delay for stability
+}
